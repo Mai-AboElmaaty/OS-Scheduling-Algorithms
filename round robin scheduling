@@ -1,4 +1,6 @@
 GChart = []  # Gaint Chart
+RRAvgWaitingTime = 0
+RRAvgTurnAroundTime = 0
 
 
 class process:
@@ -18,13 +20,30 @@ def shiftCL(alist):  # circular shift left fn: to rearrange queue
 
 def RR(TQ, PList, n):  # time quantum, processes list, number of processes
     global GChart
+    global RRAvgWaitingTime
+    global RRAvgTurnAroundTime
     queue = []  # waiting queue
+    CTList = []  # complition time
+    TotalCT = 0
+    ATList = []  # arrival time
+    TotalAT = 0
+    BTList = []  # burst time
+    TotalBT = 0
     time = 0  # current time
     AP = 0  # arrived processes
     RP = 0  # ready processes
     DP = 0  # done processes
     q = TQ  # time quantum
     start = 0
+
+    # lists of AT and BT
+    a = 0
+    while a < n:
+        ATList.append(PList[a].arrival)
+        BTList.append(PList[a].burst)
+
+        a += 1
+
     while(DP < n):
         for i in range (AP, n):
             if (time>= PList[i].arrival):
@@ -50,27 +69,37 @@ def RR(TQ, PList, n):  # time quantum, processes list, number of processes
                 for g in range(time, time+queue[0].burst):
                     GChart.append(queue[0].PId)
                 time += queue[0].burst
+                CTList.append(time)  # add to complition time list
                 queue[0].burst = 0
                 DP += 1
                 RP -= 1
             start = 1
 
+    o = 0
+    while o<n:
+        TotalCT += CTList[o]
+        TotalAT += ATList[o]
+        TotalBT += BTList[o]
+
+        o += 1
+
+    RRAvgWaitingTime = (TotalCT - TotalAT - TotalBT) / n
+    RRAvgTurnAroundTime = (TotalCT - TotalAT) / n
+    # print(ATList)
+    # print(BTList)
+    # print(CTList)
+
 
 # test
 def main():
     plist = []
-    plist.append(process(1, 0, 5))
-    plist.append(process(2, 1, 3))
-    plist.append(process(3, 3, 6))
-    plist.append(process(4, 5, 1))
-    plist.append(process(5, 6, 4))
+    plist.append(process(0, 0, 7))
+    plist.append(process(1, 2, 4))
+    plist.append(process(2, 4, 1))
     RR(3, plist, len(plist))
     print(GChart)
+    print(RRAvgWaitingTime)
+    print(RRAvgTurnAroundTime)
 
 
 if __name__ == '__main__': main()
-
-
-
-
-
